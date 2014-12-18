@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 namespace Clustering
 {
     // Vector of n-dimensional real space
-    class Vector
+    public class Vector : IEnumerable
     {
         // Construct null vector
         public Vector(int dimension)
@@ -119,6 +120,12 @@ namespace Clustering
         // AngleBetweenVectors - not implemented
         // Vector + scalar - not implemented
 
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _components.GetEnumerator();
+        }
+
         private readonly double[] _components;
+
     }
 }
