@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Clustering
 {
     // Vector of n-dimensional real space
-    public class Vector : IEnumerable
+    public class Vector : IEnumerable, IEquatable<Vector>
     {
         // Construct null vector
         public Vector(int dimension)
@@ -22,6 +22,11 @@ namespace Clustering
             {
                 throw new ArgumentOutOfRangeException("dimension", "Dimension must be positive");
             }
+        }
+
+        public override int GetHashCode()
+        {
+            return _components.GetHashCode();
         }
 
         public Vector(params double[] components)
@@ -119,6 +124,21 @@ namespace Clustering
 
         // AngleBetweenVectors - not implemented
         // Vector + scalar - not implemented
+
+        public bool Equals(Vector other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return _components.Equals(other._components);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Vector)obj);
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
