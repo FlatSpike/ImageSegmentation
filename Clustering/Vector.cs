@@ -44,10 +44,16 @@ namespace Clustering
             get { return _components.Length; }
         }
 
-        // Length (magnitude, modulus) of vector
+        // Length (magnitude, modulus...) of vector
         public double Length
         {
             get { return Math.Sqrt(this * this); }
+        }
+
+        // Squared length (magnitude, modulus...) of vector
+        public double LengthSquared
+        {
+            get { return this * this; }
         }
 
         public static Vector operator -(Vector a)
