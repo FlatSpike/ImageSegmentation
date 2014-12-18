@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
@@ -14,14 +15,11 @@ namespace Clustering
         // Construct null vector
         public Vector(int dimension)
         {
-            if (dimension > 0)
-            {
-                _components = new double[dimension];
-            }
-            else
+            if (dimension <= 0)
             {
                 throw new ArgumentOutOfRangeException("dimension", "Dimension must be positive");
             }
+            _components = new double[dimension];
         }
 
         public override int GetHashCode()
@@ -68,31 +66,25 @@ namespace Clustering
 
         public static Vector operator +(Vector a, Vector b)
         {
-            if (a.Dimension == b.Dimension)
-            {
-                double[] result = new double[a.Dimension];
-                for (int i = 0; i < a.Dimension; i++)
-                {
-                    result[i] = a[i] + b[i];
-                }
-                return new Vector(result);
-            }
-            else
+            if (a.Dimension != b.Dimension)
             {
                 throw new ArgumentException("Dimensions must be equal", "b");
             }
+            double[] result = new double[a.Dimension];
+            for (int i = 0; i < a.Dimension; i++)
+            {
+                result[i] = a[i] + b[i];
+            }
+            return new Vector(result);
         }
 
         public static Vector operator -(Vector a, Vector b)
         {
-            if (a.Dimension == b.Dimension)
-            {
-                return a + (-b);
-            }
-            else
+            if (a.Dimension != b.Dimension)
             {
                 throw new ArgumentException("Dimensions must be equal", "b");
             }
+            return a + (-b);
         }
 
         public static Vector operator *(Vector a, double k)
@@ -113,19 +105,16 @@ namespace Clustering
         // Scalar multiplication
         public static double operator *(Vector a, Vector b)
         {
-            if (a.Dimension == b.Dimension)
-            {
-                double result = 0;
-                for (int i = 0; i < a.Dimension; i++)
-                {
-                    result += a[i] * b[i];
-                }
-                return result;
-            }
-            else
+            if (a.Dimension != b.Dimension)
             {
                 throw new ArgumentException("Dimensions must be equal", "b");
             }
+            double result = 0;
+            for (int i = 0; i < a.Dimension; i++)
+            {
+                result += a[i] * b[i];
+            }
+            return result;
         }
 
         // AngleBetweenVectors - not implemented
@@ -149,6 +138,11 @@ namespace Clustering
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _components.GetEnumerator();
+        }
+
+        public ReadOnlyCollection<double> Components
+        {
+            get { return Array.AsReadOnly(_components); }
         }
 
         private readonly double[] _components;

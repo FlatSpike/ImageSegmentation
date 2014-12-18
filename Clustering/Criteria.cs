@@ -1,33 +1,47 @@
 ﻿using System;
 using System.Linq;
-using System.Windows.Media.Media3D;
 
 namespace Clustering
 {
     public static class Criteria
     {
-        public static double EuclideanDistance(Point3D a, Point3D b)
+        public static double EuclideanDistance(Vector a, Vector b)
         {
             return (a - b).Length;
         }
 
-        public static double EuclideanDistanceSquared(Point3D a, Point3D b)
+        public static double EuclideanDistanceSquared(Vector a, Vector b)
         {
             return (a - b).LengthSquared;
         }
 
         // Also known as Manhattan Distance
-        public static double TaxicabDistance(Point3D a, Point3D b)
+        public static double TaxicabDistance(Vector a, Vector b)
         {
-            Vector3D v = a - b;
-            return Math.Abs(v.X) + Math.Abs(v.Y) + Math.Abs(v.Z);
+            return (a - b).Components.Sum();
         }
 
         // Also known as Chessboard Distance
-        public static double ChebyshevDistance(Point3D a, Point3D b)
+        public static double ChebyshevDistance(Vector a, Vector b)
         {
-            Vector3D v = a - b;
-            return (new double[] {v.X, v.Y, v.Z}).Max();
+            return (a - b).Components.Max();
+        }
+
+        // If p=2 and r=2 - Euclidean distance 
+        // Not use, 'cause don't match Func<Vector, Vector, double> 
+        public static double ExponentialDistance(Vector a, Vector b, double p, double r)
+        {
+            if (a.Dimension != b.Dimension)
+            {
+                throw new ArgumentException("Dimensions must be equal", "b");
+            }
+            Vector v = a - b;
+            double result = 0;
+            for (int i = 0; i < v.Dimension; i++)
+            {
+                result += Math.Pow(v[i], p);
+            }
+            return Math.Pow(result, 1 / r);
         }
     }
 }
