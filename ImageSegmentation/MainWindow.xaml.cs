@@ -30,6 +30,19 @@ namespace ImageSegmentation
             createOpenFileDialog();
         }
 
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            if (currentImage != null)
+            {
+                byte[] pixels = getPixels(currentImage, 4);
+                vectors = Clustering.Vector.getVectors(pixels, 4);
+            }
+            else
+            {
+                // TODO: Add error handle
+            }
+        }
+
         private void createOpenFileDialog()
         {
             Microsoft.Win32.OpenFileDialog openFileDialog1 = new Microsoft.Win32.OpenFileDialog();
@@ -51,6 +64,25 @@ namespace ImageSegmentation
             }
         }
 
+        // For RGB image numParams must be is 4, if it is
+        //  pixels[count + 0] - blue,
+        //  pixels[count + 1] - green,
+        //  pixels[count + 2] - red,
+        //  pixels[count + 3] - alpha,
+        // where count - number of the current pixel
+        private byte[] getPixels(BitmapImage image, int numParams) 
+        {
+            int stride = currentImage.PixelWidth * numParams;
+            int size = currentImage.PixelHeight * stride;
+
+            byte[] result = new byte[size];
+
+            image.CopyPixels(result, stride, 0);
+
+            return result;
+        }
+
+        private Clustering.Vector[] vectors;
         private BitmapImage currentImage;
     }
 }

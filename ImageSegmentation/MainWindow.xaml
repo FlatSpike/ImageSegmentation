@@ -5,6 +5,7 @@
     <Grid>
         <Image Name="Image" HorizontalAlignment="Left" Height="474" Margin="10,10,0,0" VerticalAlignment="Top" Width="684"/>
         <Button Content="Open Image" HorizontalAlignment="Left" Height="25" Margin="699,10,0,0" VerticalAlignment="Top" Width="187" Click="Button_Click_1"/>
+        <Button Content="Processing" HorizontalAlignment="Left" Margin="699,40,0,0" VerticalAlignment="Top" Width="187" Height="26" Click="Button_Click_2"/>
 
     </Grid>
 </Window>

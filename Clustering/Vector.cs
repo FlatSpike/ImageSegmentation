@@ -21,11 +21,12 @@ namespace Clustering
             }
             _components = new double[dimension];
         }
-
+        
         public override int GetHashCode()
         {
             return _components.GetHashCode();
         }
+
 
         public Vector(params double[] components)
         {
@@ -119,6 +120,24 @@ namespace Clustering
 
         // AngleBetweenVectors - not implemented
         // Vector + scalar - not implemented
+
+        public static Vector[] getVectors(byte[] parametrs, int lenght)
+        { 
+            Vector[] vectors = new Vector[parametrs.Length/lenght];
+
+            for (int i = 0; i < vectors.Length; i++) 
+            {
+                int index = i * lenght;
+                double[] array = new double[lenght];
+
+                for (int j = 0; j < array.Length; j++)
+                {
+                    array[j] = Convert.ToDouble(parametrs[index + j]);
+                }
+                vectors[i] = new Vector(array);
+            }
+            return vectors;
+        }
 
         public bool Equals(Vector other)
         {
