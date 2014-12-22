@@ -13,5 +13,6 @@ namespace ImageSegmentation
     /// </summary>
     public partial class App : Application
     {
+
     }
 }

@@ -24,5 +24,33 @@ namespace ImageSegmentation
         {
             InitializeComponent();
         }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            createOpenFileDialog();
+        }
+
+        private void createOpenFileDialog()
+        {
+            Microsoft.Win32.OpenFileDialog openFileDialog1 = new Microsoft.Win32.OpenFileDialog();
+
+            openFileDialog1.Filter =
+                "All files (*.*)|*.*|" +
+                "BMP (*.BMP;*.RLE;*.DIB)|*.BMP;*.RLE;*.DIB|" +
+                "JPEG (*.JPG;*.JPEG;*.JPE)|*.JPG;*.JPEG;*.JPE|" +
+                "PNG (*.PNG)|*.PNG";
+            openFileDialog1.FilterIndex = 1;
+            openFileDialog1.Multiselect = false;
+
+            bool? userClickedOK = openFileDialog1.ShowDialog();
+
+            if (userClickedOK == true)
+            {
+                currentImage = new BitmapImage(new Uri(openFileDialog1.FileName));
+                Image.Source = currentImage;
+            }
+        }
+
+        private BitmapImage currentImage;
     }
 }

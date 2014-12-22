@@ -1,8 +1,10 @@
 ﻿<Window x:Class="ImageSegmentation.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="524" Width="904">
     <Grid>
-        
+        <Image Name="Image" HorizontalAlignment="Left" Height="474" Margin="10,10,0,0" VerticalAlignment="Top" Width="684"/>
+        <Button Content="Open Image" HorizontalAlignment="Left" Height="25" Margin="699,10,0,0" VerticalAlignment="Top" Width="187" Click="Button_Click_1"/>
+
     </Grid>
 </Window>
