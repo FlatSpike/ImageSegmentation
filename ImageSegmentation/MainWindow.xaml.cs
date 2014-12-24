@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Drawing.Imaging;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ImageSegmentation
 {
@@ -20,22 +13,30 @@ namespace ImageSegmentation
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static readonly DependencyProperty CurrentImageProperty = DependencyProperty.Register("CurrentImage", typeof(BitmapSource), typeof(MainWindow));
+
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this;
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void ButtonOpenClick(object sender, RoutedEventArgs e)
         {
-            createOpenFileDialog();
+            CreateOpenFileDialog();
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void ButtonProcessingClick(object sender, RoutedEventArgs e)
         {
-            if (currentImage != null)
+            if (CurrentImage != null)
             {
-                byte[] pixels = getPixels(currentImage, 4);
-                vectors = Clustering.Vector.getVectors(pixels, 4);
+                // test actions
+                byte[] pixels = ImageBinaryConverter.ImageToBytes(CurrentImage); // convert image to bytes
+                CurrentImage = ImageBinaryConverter.BytesToImage(CurrentImage.PixelWidth, CurrentImage.PixelHeight,
+                    CurrentImage.Format, CurrentImage.Palette, pixels, Stride); // convert bytes to image
+                Image2.Source = CurrentImage; // check output
+                _vectors = Clustering.Vector.GetVectors(pixels, BytesPerPixel); //convet to vectors
+                CurrentImage = ImageBinaryConverter.ImageToFormat(CurrentImage, PixelFormats.BlackWhite); // check format convert
             }
             else
             {
@@ -43,46 +44,80 @@ namespace ImageSegmentation
             }
         }
 
-        private void createOpenFileDialog()
+        private void CreateOpenFileDialog()
         {
-            Microsoft.Win32.OpenFileDialog openFileDialog1 = new Microsoft.Win32.OpenFileDialog();
-
-            openFileDialog1.Filter =
-                "All files (*.*)|*.*|" +
-                "BMP (*.BMP;*.RLE;*.DIB)|*.BMP;*.RLE;*.DIB|" +
-                "JPEG (*.JPG;*.JPEG;*.JPE)|*.JPG;*.JPEG;*.JPE|" +
-                "PNG (*.PNG)|*.PNG";
-            openFileDialog1.FilterIndex = 1;
-            openFileDialog1.Multiselect = false;
-
-            bool? userClickedOK = openFileDialog1.ShowDialog();
-
-            if (userClickedOK == true)
+            Microsoft.Win32.OpenFileDialog openFileDialog1 = new Microsoft.Win32.OpenFileDialog
             {
-                currentImage = new BitmapImage(new Uri(openFileDialog1.FileName));
-                Image.Source = currentImage;
+                Filter = GetImageFilter(),
+                FilterIndex = 1,
+                Multiselect = false
+            };
+
+            bool? userClickedOk = openFileDialog1.ShowDialog();
+
+            if (userClickedOk == true)
+            {
+                LoadImage(openFileDialog1.FileName);
             }
         }
 
-        // For RGB image numParams must be is 4, if it is
-        //  pixels[count + 0] - blue,
-        //  pixels[count + 1] - green,
-        //  pixels[count + 2] - red,
-        //  pixels[count + 3] - alpha,
-        // where count - number of the current pixel
-        private byte[] getPixels(BitmapImage image, int numParams) 
+        private void LoadImage(string fileName)
         {
-            int stride = currentImage.PixelWidth * numParams;
-            int size = currentImage.PixelHeight * stride;
-
-            byte[] result = new byte[size];
-
-            image.CopyPixels(result, stride, 0);
-
-            return result;
+            CurrentImage = new BitmapImage(new Uri(fileName));
         }
 
-        private Clustering.Vector[] vectors;
-        private BitmapImage currentImage;
+        /// http://www.codeproject.com/Tips/255626/A-FileDialog-Filter-generator-for-all-supported-im
+        /// <summary>
+        /// Get the Filter string for all supported image types.
+        /// This can be used directly to the FileDialog class Filter Property.
+        /// </summary>
+        /// <returns></returns>
+        public string GetImageFilter()
+        {
+            StringBuilder allImageExtensions = new StringBuilder();
+            string separator = "";
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
+            Dictionary<string, string> images = new Dictionary<string, string>();
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                allImageExtensions.Append(separator);
+                allImageExtensions.Append(codec.FilenameExtension);
+                separator = ";";
+                images.Add(string.Format("{0} Files: ({1})", codec.FormatDescription, codec.FilenameExtension),
+                           codec.FilenameExtension);
+            }
+            StringBuilder sb = new StringBuilder();
+            if (allImageExtensions.Length > 0)
+            {
+                sb.AppendFormat("{0}|{1}", "All Images", allImageExtensions.ToString());
+            }
+            // images.Add("All Files", "*.*");
+            foreach (KeyValuePair<string, string> image in images)
+            {
+                sb.AppendFormat("|{0}|{1}", image.Key, image.Value);
+            }
+            return sb.ToString();
+        }
+
+        public BitmapSource CurrentImage
+        {
+            get { return (BitmapSource)GetValue(CurrentImageProperty); }
+            set
+            {
+                SetValue(CurrentImageProperty, value);
+            }
+        }
+
+        private int BytesPerPixel
+        {
+            get { return (int) Math.Ceiling(CurrentImage.Format.BitsPerPixel/8.0); }
+        }
+
+        private int Stride
+        {
+            get { return CurrentImage.PixelWidth * BytesPerPixel; }
+        }
+
+        private Clustering.Vector[] _vectors;
     }
 }

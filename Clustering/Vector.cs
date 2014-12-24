@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Clustering
 {
@@ -30,7 +25,8 @@ namespace Clustering
 
         public Vector(params double[] components)
         {
-            _components = components;
+            _components = new double[components.Length];
+            components.CopyTo(_components, 0);
         }
 
         public double this[int index]
@@ -121,18 +117,18 @@ namespace Clustering
         // AngleBetweenVectors - not implemented
         // Vector + scalar - not implemented
 
-        public static Vector[] getVectors(byte[] parametrs, int lenght)
+        public static Vector[] GetVectors(byte[] data, int bytesPerParameter)
         { 
-            Vector[] vectors = new Vector[parametrs.Length/lenght];
+            Vector[] vectors = new Vector[data.Length/bytesPerParameter];
 
             for (int i = 0; i < vectors.Length; i++) 
             {
-                int index = i * lenght;
-                double[] array = new double[lenght];
+                int index = i * bytesPerParameter;
+                double[] array = new double[bytesPerParameter];
 
                 for (int j = 0; j < array.Length; j++)
                 {
-                    array[j] = Convert.ToDouble(parametrs[index + j]);
+                    array[j] = Convert.ToDouble(data[index + j]);
                 }
                 vectors[i] = new Vector(array);
             }
