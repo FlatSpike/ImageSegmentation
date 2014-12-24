@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Clustering
 {
@@ -22,6 +19,11 @@ namespace Clustering
         public bool Remove(Vector v)
         {
             return _vectors.Remove(v);
+        }
+
+        public bool Contains(Vector v)
+        {
+            return _vectors.Contains(v);
         }
 
         public bool Equals(Cluster other)
@@ -47,6 +49,20 @@ namespace Clustering
         public IEnumerator GetEnumerator()
         {
             return _vectors.GetEnumerator();
+        }
+
+        public Vector AverageVector
+        {
+            get
+            {
+                Vector averageVector = new Vector();
+                foreach (Vector vector in _vectors)
+                {
+                    averageVector += vector;
+                }
+                averageVector /= _vectors.Count;
+                return averageVector;
+            }
         }
 
         public Vector Centroid { get; private set; }

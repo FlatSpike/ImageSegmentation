@@ -16,7 +16,13 @@ namespace Clustering
             }
             _components = new double[dimension];
         }
-        
+
+        public Vector(Vector v)
+        {
+            _components = new double[v._components.Length];
+            v._components.CopyTo(_components, 0);
+        }
+
         public override int GetHashCode()
         {
             return _components.GetHashCode();
