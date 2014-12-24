@@ -66,7 +66,7 @@ namespace Clustering
         }
 
         public Vector Centroid { get; set; }
-
+        public Vector Color { get; set; }
         private readonly HashSet<Vector> _vectors = new HashSet<Vector>();
     }
 }

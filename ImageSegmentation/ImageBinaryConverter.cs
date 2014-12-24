@@ -45,6 +45,11 @@ namespace ImageSegmentation
             return BitmapSource.Create(width, height, 96, 96, format, palette, pixels, stride);
         }
 
+        public static BitmapSource BytesToImage(ImageProperties image, Array pixels)
+        {
+            return BitmapSource.Create(image.Width, image.Height, 96, 96, image.Image.Format, image.Image.Palette, pixels, image.Stride);
+        }
+
         public static BitmapSource ImageToFormat(BitmapSource source, PixelFormat format)
         {
             if (source.Format != format)
