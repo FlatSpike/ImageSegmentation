@@ -142,6 +142,24 @@ namespace Clustering
             return vectors;
         }
 
+        public static byte[] GetBytes(Vector[] vectors) 
+        {
+            byte[] result = new byte[0];
+            
+            foreach (Vector vector in vectors)
+            {
+                byte[] temp = new byte[vector.Dimension];
+                ReadOnlyCollection<double> components = vector.Components;
+                for (int i=0;i<components.Count; i++)
+                {
+                    temp[i] = Convert.ToByte(components.ElementAt(i));
+                }
+                result = Enumerable.Concat(result, temp).ToArray();
+            }
+
+            return result;
+        }
+
         public bool Equals(Vector other)
         {
             if (ReferenceEquals(null, other)) return false;
