@@ -61,7 +61,63 @@ namespace Clustering
             return clusters;
         }
 
-        // TODO: Implement k-means algorithm
-         
+        public static List<Cluster> kMeansClustering(List<Vector> vectors, Func<Vector, Vector, double> criteria, List<Vector> centroids)
+        {
+            if (centroids == null || centroids.Count < 2)
+            {
+                // TODO: Add throw error
+                return null;
+            }
+
+            List<Cluster> clusters = new List<Cluster>();
+            foreach (Vector centroid in centroids)
+            {
+                clusters.Add(new Cluster(centroid));
+            }
+
+            bool centroidChanged = true;
+
+            while (centroidChanged)
+            {
+                foreach (Vector vector in vectors)
+                {
+                    Cluster currentCluster = clusters[0];
+                    double currentDistance = criteria(currentCluster.Centroid, vector);
+                    for (int i = 1; i < clusters.Count; i++)
+                    {
+                        double distanse = criteria(clusters[i].Centroid, vector);
+                        if (distanse < currentDistance)
+                        {
+                            currentDistance = distanse;
+                            currentCluster = clusters[i];
+                        }
+                    }
+                    currentCluster.Add(vector);
+                }
+                centroidChanged = false;
+                foreach (Cluster cluster in clusters)
+                {
+                    Vector centroid = cluster.Centroid;
+                    Vector averageVector = cluster.AverageVector;
+                    if (!centroid.Equals(averageVector))
+                    {
+                        centroidChanged = true;
+                    }
+                    cluster.Centroid = averageVector;
+                }
+            }
+            return clusters;
+        }
+
+        // version of rundom clusters 
+        public static List<Cluster> kMeansClistering(List<Vector> vectors, Func<Vector, Vector, double> criteria, int clusterNumber)
+        {
+            if (clusterNumber < 2) 
+            {
+                // TODO: Add throw error
+            }
+
+            return null;
+        }
     }
 }

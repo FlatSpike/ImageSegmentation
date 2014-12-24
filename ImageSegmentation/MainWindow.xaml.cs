@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
@@ -31,12 +32,17 @@ namespace ImageSegmentation
             if (CurrentImage != null)
             {
                 // test actions
+                Image2.Source = CurrentImage;
                 byte[] pixels = ImageBinaryConverter.ImageToBytes(CurrentImage); // convert image to bytes
                 CurrentImage = ImageBinaryConverter.BytesToImage(CurrentImage.PixelWidth, CurrentImage.PixelHeight,
                     CurrentImage.Format, CurrentImage.Palette, pixels, Stride); // convert bytes to image
-                Image2.Source = CurrentImage; // check output
+                Image.Source = CurrentImage; // check output
                 _vectors = Clustering.Vector.GetVectors(pixels, BytesPerPixel); //convet to vectors
-                CurrentImage = ImageBinaryConverter.ImageToFormat(CurrentImage, PixelFormats.BlackWhite); // check format convert
+                List<Clustering.Vector> centroids = new List<Clustering.Vector>();
+                centroids.Add(new Clustering.Vector(0, 0, 0, 255));
+                centroids.Add(new Clustering.Vector(255, 255, 255, 255));
+                List<Clustering.Cluster> res = Clustering.Clustering.kMeansClustering(new List<Clustering.Vector>(_vectors), Clustering.Criteria.EuclideanDistance, centroids);
+                //CurrentImage = ImageBinaryConverter.ImageToFormat(CurrentImage, PixelFormats.Bgr32); // check format convert
             }
             else
             {

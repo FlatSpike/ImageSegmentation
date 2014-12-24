@@ -55,7 +55,7 @@ namespace Clustering
         {
             get
             {
-                Vector averageVector = new Vector();
+                Vector averageVector = new Vector(Centroid.Dimension);
                 foreach (Vector vector in _vectors)
                 {
                     averageVector += vector;
@@ -65,7 +65,7 @@ namespace Clustering
             }
         }
 
-        public Vector Centroid { get; private set; }
+        public Vector Centroid { get; set; }
 
         private readonly HashSet<Vector> _vectors = new HashSet<Vector>();
     }

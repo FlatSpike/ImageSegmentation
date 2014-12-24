@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Clustering
 {
@@ -145,7 +146,7 @@ namespace Clustering
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return _components.Equals(other._components);
+            return Enumerable.SequenceEqual(this._components, other.Components);
         }
 
         public override bool Equals(object obj)

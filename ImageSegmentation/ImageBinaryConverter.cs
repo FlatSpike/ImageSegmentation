@@ -17,9 +17,9 @@ namespace ImageSegmentation
         /*
          * Returns byte array containing pixels (red, green, blue, alpha);        
          * You can then access the Red, Green, Blue and Alpha components as follows:
-         * byte red = bytes[index];
+         * byte blue = bytes[index];
          * byte green = bytes[index + 1];
-         * byte blue = bytes[index + 2];
+         * byte red = bytes[index + 2];
          * byte alpha = bytes[index + 3];
         */
         public static byte[] ImageToBytes(BitmapSource source)
@@ -54,5 +54,19 @@ namespace ImageSegmentation
             return source;
         }
 
+        public static byte[] getHalftoneBgr32(byte[] pixels) 
+        {
+            byte[] result = new byte[pixels.Length];
+            for (int i = 0; i < pixels.Length; i = i + 4 )
+            {
+                byte color = Convert.ToByte((pixels[i + 2] + pixels[i + 1] + pixels[i]) / 3);
+
+                result[i] = color;
+                result[i + 1] = color;
+                result[i + 2] = color;
+                result[i + 3] = result[i + 3];
+            }
+            return result;
+        }
     }
 }
