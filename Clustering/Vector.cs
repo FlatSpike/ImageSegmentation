@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -144,20 +145,17 @@ namespace Clustering
 
         public static byte[] GetBytes(Vector[] vectors) 
         {
-            byte[] result = new byte[0];
+            List<byte> result = new List<byte>();
             
             foreach (Vector vector in vectors)
             {
-                byte[] temp = new byte[vector.Dimension];
-                ReadOnlyCollection<double> components = vector.Components;
-                for (int i=0;i<components.Count; i++)
+                foreach (Double number in vector.Components)
                 {
-                    temp[i] = Convert.ToByte(components.ElementAt(i));
+                    result.Add(Convert.ToByte(number));
                 }
-                result = Enumerable.Concat(result, temp).ToArray();
             }
 
-            return result;
+            return result.ToArray();
         }
 
         public bool Equals(Vector other)

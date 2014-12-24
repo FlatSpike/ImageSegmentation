@@ -31,23 +31,50 @@ namespace ImageSegmentation
         {
             if (CurrentImage != null)
             {
-                // test actions
-                Image2.Source = CurrentImage;
-                byte[] pixels = ImageBinaryConverter.ImageToBytes(CurrentImage); // convert image to bytes
-                CurrentImage = ImageBinaryConverter.BytesToImage(CurrentImage.PixelWidth, CurrentImage.PixelHeight,
-                    CurrentImage.Format, CurrentImage.Palette, pixels, Stride); // convert bytes to image
-                Image.Source = CurrentImage; // check output
-                _vectors = Clustering.Vector.GetVectors(pixels, BytesPerPixel); //convet to vectors
-                List<Clustering.Vector> centroids = new List<Clustering.Vector>();
-                centroids.Add(new Clustering.Vector(0, 0, 0, 255));
-                centroids.Add(new Clustering.Vector(255, 255, 255, 255));
-                List<Clustering.Cluster> res = Clustering.Clustering.kMeansClustering(new List<Clustering.Vector>(_vectors), Clustering.Criteria.EuclideanDistance, centroids);
-                //CurrentImage = ImageBinaryConverter.ImageToFormat(CurrentImage, PixelFormats.Bgr32); // check format convert
+                testKMeanClustering();
+                //testMeanShiftClustering();
             }
             else
             {
                 // TODO: Add error handle
             }
+        }
+
+        // For testing
+        private void testKMeanClustering()
+        {
+            Image2.Source = CurrentImage;
+            byte[] pixels = ImageBinaryConverter.ImageToBytes(CurrentImage);
+            _vectors = Clustering.Vector.GetVectors(pixels, BytesPerPixel);
+
+            List<Clustering.Vector> centroids = new List<Clustering.Vector>();
+            centroids.Add(new Clustering.Vector(0, 0, 0, 255));
+            centroids.Add(new Clustering.Vector(255, 255, 255, 255));
+
+            List<Clustering.Cluster> clusters = Clustering.Clustering.kMeansClustering(new List<Clustering.Vector>(_vectors), Clustering.Criteria.EuclideanDistance, centroids);
+            List<Clustering.Vector> vectors = new List<Clustering.Vector>(_vectors);
+            Clustering.Clustering.ApplyClustering(clusters, vectors);
+            _vectors = vectors.ToArray();
+            pixels = Clustering.Vector.GetBytes(_vectors);
+
+            CurrentImage = ImageBinaryConverter.BytesToImage(CurrentImage.PixelWidth, CurrentImage.PixelHeight,
+                CurrentImage.Format, CurrentImage.Palette, pixels, Stride);
+        }
+
+        private void testMeanShiftClustering()
+        {
+            Image2.Source = CurrentImage;
+            byte[] pixels = ImageBinaryConverter.ImageToBytes(CurrentImage);
+            _vectors = Clustering.Vector.GetVectors(pixels, BytesPerPixel);
+
+            List<Clustering.Cluster> clusters = Clustering.Clustering.MeanShiftClustering(new List<Clustering.Vector>(_vectors), Clustering.Criteria.EuclideanDistance, 2);
+            List<Clustering.Vector> vectors = new List<Clustering.Vector>(_vectors);
+            Clustering.Clustering.ApplyClustering(clusters, vectors);
+            _vectors = vectors.ToArray();
+            pixels = Clustering.Vector.GetBytes(_vectors);
+
+            CurrentImage = ImageBinaryConverter.BytesToImage(CurrentImage.PixelWidth, CurrentImage.PixelHeight,
+                CurrentImage.Format, CurrentImage.Palette, pixels, Stride);
         }
 
         private void CreateOpenFileDialog()
