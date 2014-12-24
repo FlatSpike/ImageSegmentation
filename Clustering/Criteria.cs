@@ -28,7 +28,8 @@ namespace Clustering
         }
 
         // If p=2 and r=2 - Euclidean distance 
-        // Not use, 'cause don't match Func<Vector, Vector, double> 
+        // Not use, 'cause don't match Func<Vector, Vector, double>
+        // Use GetExponentialDistanceFunction instead
         public static double ExponentialDistance(Vector a, Vector b, double p, double r)
         {
             if (a.Dimension != b.Dimension)
@@ -42,6 +43,11 @@ namespace Clustering
                 result += Math.Pow(v[i], p);
             }
             return Math.Pow(result, 1 / r);
+        }
+
+        public static Func<Vector, Vector, double> GetExponentialDistanceFunction(double p, double r)
+        {
+            return (a, b) => ExponentialDistance(a, b, p, r);
         }
     }
 }
