@@ -19,7 +19,7 @@ namespace ImageSegmentation
 
         public Vector getPixel(int x, int y)
         {
-            if (!checkBorders(x, y)) 
+            if (!CheckBorders(x, y)) 
             {
                 // TODO: Add error handler
                 return null;
@@ -41,6 +41,6 @@ namespace ImageSegmentation
 
         public int Stride { get { return Width * BytesPerPixel; } }
 
-        private bool checkBorders(int x, int y) { return (0 < x && x < Width) && (0 < y && y < Height); }
+        private bool CheckBorders(int x, int y) { return (0 < x && x < Width) && (0 < y && y < Height); }
     }
 }

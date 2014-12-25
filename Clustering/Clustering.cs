@@ -33,7 +33,7 @@ namespace Clustering
                 Vector centroid = new Vector(vector);
                 while (true)
                 {
-                    Vector averageVector = new Vector();
+                    Vector averageVector = new Vector(vector.Dimension);
                     int vectorCount = 0;
                     foreach (Vector innerVector in vectors)
                     {

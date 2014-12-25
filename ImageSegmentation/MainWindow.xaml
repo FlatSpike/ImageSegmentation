@@ -5,45 +5,53 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="ImageSegmentation.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="604" Width="984">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Image x:Name="Image" Margin="10,10,249,10" Source="{Binding Path=CurrentImage}" MouseLeftButtonDown="Image_MouseLeftButtonDown"/>
-        <Button Content="Open Image" Height="25" Margin="0,10,11,0" VerticalAlignment="Top" Click="ButtonOpenClick" HorizontalAlignment="Right" Width="228"/>
-        <Button Content="Processing" Margin="0,40,11,0" Height="26" Click="ButtonProcessingClick" VerticalAlignment="Top" HorizontalAlignment="Right" Width="228"/>
-        <Image x:Name="Image2" Height="182" Margin="0,102,11,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="228"/>
-        <ComboBox x:Name="ComboBox" Height="26" Margin="0,71,11,0" VerticalAlignment="Top" SelectionChanged="ComboBox_SelectionChanged_1" HorizontalAlignment="Right" Width="228">
-            <Label Content="MeanShiftClustering"/>
-            <Label Content="kMeansClustering"/>
-        </ComboBox>
-        <GroupBox Header="Settings" Margin="0,289,10,10" HorizontalAlignment="Right" Width="234">
-            <Grid x:Name="Settings" Margin="0,0,-2,0">
-                <Grid x:Name="kMeanSettings" HorizontalAlignment="Right" Width="218" Margin="0,0,0,-2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="Point Count:" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="74" Margin="0,36,0,0"/>
-                    <Label x:Name="PointCount" Content="0" Height="26" Margin="74,36,0,0" VerticalAlignment="Top"/>
-                    <ComboBox x:Name="kMeanCentroidsType" Height="26" Margin="0,5,10,0" VerticalAlignment="Top" SelectedIndex="0">
-                        <Label Content="Some point"/>
-                        <Label Content="Random"/>
-                    </ComboBox>
-                    <ListView x:Name="ColorsList" Margin="0,62,10,10">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </Grid>
-                <Grid x:Name="MeanShiftSettings" Height="255" VerticalAlignment="Top" Visibility="Hidden">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="Label" HorizontalAlignment="Left" Height="25" VerticalAlignment="Top" Width="218"/>
-                </Grid>
-            </Grid>
-        </GroupBox>
-    </Grid>
+    <DockPanel LastChildFill="True">
+        <DockPanel LastChildFill="True" DockPanel.Dock="Left" MaxWidth="225" Width="255">
+            <StackPanel Name="MainPanel" DockPanel.Dock="Top">
+                <Button Name="OpenImageButton"  Content="Open Image" Height="25" Margin="10,10,10,0" Click="ButtonOpenClick"/>
+                <Label Content="Method:" Margin="10,0,10,0" HorizontalAlignment="Left"/>
+                <ComboBox x:Name="ComboBoxMethod" Height="26" Margin="10,0,10,0" SelectionChanged="ComboBoxMethod_SelectionChanged" >
+                    <Label Content="Mean Shift Clustering"/>
+                    <Label Content="k-Means Clustering"/>
+                </ComboBox>
+                <GroupBox Name="SettingsBox" Header="Settings" Margin="10,0,10,0" Visibility="Hidden">
+                    <Grid Name="Settings">
+                        <StackPanel Name="KMeanSettings" Visibility="Collapsed">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Point Count:"/>
+                                <Label Name="PointCount" Content="0"/>
+                            </StackPanel>
+                            <ComboBox Name="kMeanCentroidsType" Height="26" SelectedIndex="0">
+                                <Label Content="Some point"/>
+                                <Label Content="Random"/>
+                            </ComboBox>
+                            <ListView Name="ColorsList" Margin="10,10,10,10">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridView.ColumnHeaderContainerStyle>
+                                            <Style>
+                                                <Setter Property="FrameworkElement.Visibility" Value="Collapsed"/>
+                                            </Style>
+                                        </GridView.ColumnHeaderContainerStyle>
+                                        <GridViewColumn/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <Button Content="Clear" Click="ButtonClear_OnClick"></Button>
+                        </StackPanel>
+                        <StackPanel Name="MeanShiftSettings" Visibility="Collapsed">
+                            <Label Content="Scale:" HorizontalAlignment="Left"/>
+                            <DockPanel LastChildFill="true">
+                                <Label Content="{Binding ElementName=ScaleSlider, Path=Value}" MinWidth="30" DockPanel.Dock="Right"/>
+                                <Slider Name="ScaleSlider"  Value="20" IsSnapToTickEnabled="True" Maximum="128" Minimum="1" SmallChange="1"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+                <Button Content="Processing" Margin="10,10,10,0" Height="26" Click="ButtonProcessingClick"/>
+            </StackPanel>
+            <Image x:Name="OriginalImage" Margin="10,10,10,10" VerticalAlignment="Bottom"/>
+        </DockPanel>
+        <Image x:Name="Image" Margin="10,10,10,10" Source="{Binding Path=CurrentImage}" MouseLeftButtonDown="Image_MouseLeftButtonDown"/>
+    </DockPanel>
 </Window>

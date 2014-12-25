@@ -162,7 +162,7 @@ namespace Clustering
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Enumerable.SequenceEqual(this._components, other.Components);
+            return this._components.SequenceEqual(other.Components);
         }
 
         public override bool Equals(object obj)

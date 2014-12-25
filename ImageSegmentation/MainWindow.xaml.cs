@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -21,7 +21,7 @@ namespace ImageSegmentation
         {
             InitializeComponent();
             this.DataContext = this;
-            ComboBox.SelectedIndex = 0;
+            RefreshPanel();
         }
 
         private void ButtonOpenClick(object sender, RoutedEventArgs e)
@@ -31,17 +31,18 @@ namespace ImageSegmentation
 
         private void ButtonProcessingClick(object sender, RoutedEventArgs e)
         {
-            if (imageProperties.Image != null)
+            if (ImageProperties.Image != null)
             {
-                switch (ComboBox.SelectedIndex)
+                Cursor = Cursors.Wait;
+                switch (ComboBoxMethod.SelectedIndex)
                 {
                     case 0:
-                        meanShiftClustering();
+                        meanShiftClustering((int)ScaleSlider.Value);
                         break;
                     case 1:
                         if (kMeanCentroidsType.SelectedIndex == 0)
                         {
-                            kMeanClustering(kMeanCentroids);
+                            kMeanClustering(_kMeanCentroids);
                         }
                         else
                         {
@@ -49,19 +50,27 @@ namespace ImageSegmentation
                         }
                         break;
                 }
+                Cursor = Cursors.Arrow;
             }
             else
             {
                 // TODO: Add error handle
             }
-            kMeanCentroids.Clear();
+            _kMeanCentroids.Clear();
         }
 
+        private void ButtonClear_OnClick(object sender, RoutedEventArgs e)
+        {
+            ColorsList.Items.Clear();
+            PointCount.Content = "0";
+            _kMeanCentroids.Clear();
+        }
+        
         private void Image_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (imageProperties.Image != null)
+            if (ImageProperties.Image != null)
             {
-                if (ComboBox.SelectedIndex == 1) 
+                if (ComboBoxMethod.SelectedIndex == 1) 
                 {
                     if (kMeanCentroidsType.SelectedIndex == 0)
                     {
@@ -74,17 +83,17 @@ namespace ImageSegmentation
             }
         }
 
-        private void ComboBox_SelectionChanged_1(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void ComboBoxMethod_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            hiddenSettings();
-            switch (ComboBox.SelectedIndex)
+            HideSettings();
+            switch (ComboBoxMethod.SelectedIndex)
             { 
                 case 0:
                     showMeanShiftSettings();
                     break;
                 case 1:
                     showKMeanSettings();
-                    kMeanCentroids = new List<Clustering.Vector>();
+                    _kMeanCentroids = new List<Clustering.Vector>();
                     break;
             }
         }
@@ -93,28 +102,22 @@ namespace ImageSegmentation
         // TODO: Remove
         private void kMeanClustering(List<Clustering.Vector> centroids)
         {
-            Image2.Source = imageProperties.Image;
-
-            List<Clustering.Vector> vectors = new List<Clustering.Vector>(imageProperties.Vector);
+            List<Clustering.Vector> vectors = new List<Clustering.Vector>(ImageProperties.Vector);
             List<Clustering.Cluster> clusters = Clustering.Clustering.kMeansClustering(vectors, Clustering.Criteria.EuclideanDistance, centroids);
             Clustering.Clustering.ApplyClusteringColor(clusters, vectors);
 
-            imageProperties = new ImageProperties(
-                ImageBinaryConverter.BytesToImage(imageProperties, Clustering.Vector.GetBytes(vectors.ToArray())));
-            SetValue(CurrentImageProperty, imageProperties.Image);
+            ImageProperties = new ImageProperties(
+                ImageBinaryConverter.BytesToImage(ImageProperties, Clustering.Vector.GetBytes(vectors.ToArray())));
         }
 
-        private void meanShiftClustering()
+        private void meanShiftClustering(int scale)
         {
-            Image2.Source = imageProperties.Image;
-
-            List<Clustering.Vector> vectors = new List<Clustering.Vector>(imageProperties.Vector);
-            List<Clustering.Cluster> clusters = Clustering.Clustering.MeanShiftClustering(vectors, Clustering.Criteria.EuclideanDistance, 2);
+            List<Clustering.Vector> vectors = new List<Clustering.Vector>(ImageProperties.Vector);
+            List<Clustering.Cluster> clusters = Clustering.Clustering.MeanShiftClustering(vectors, Clustering.Criteria.EuclideanDistance, scale);
             Clustering.Clustering.ApplyClustering(clusters, vectors);
 
-            imageProperties = new ImageProperties(
-                ImageBinaryConverter.BytesToImage(imageProperties, Clustering.Vector.GetBytes(vectors.ToArray())));
-            SetValue(CurrentImageProperty, imageProperties.Image);
+            ImageProperties = new ImageProperties(
+                ImageBinaryConverter.BytesToImage(ImageProperties, Clustering.Vector.GetBytes(vectors.ToArray())));
         }
 
         private void CreateOpenFileDialog()
@@ -131,14 +134,15 @@ namespace ImageSegmentation
             if (userClickedOk == true)
             {
                 LoadImage(openFileDialog1.FileName);
-                SetValue(CurrentImageProperty, imageProperties.Image);
-                ColorsList.Items.Clear();
             }
         }
 
         private void LoadImage(string fileName)
         {
-            imageProperties = new ImageProperties(new BitmapImage(new Uri(fileName)));
+            ImageProperties = new ImageProperties(new BitmapImage(new Uri(fileName)));
+            OriginalImage.Source = CurrentImage;
+            ColorsList.Items.Clear();
+
         }
 
         private void createMenuItem(Color color, double x, double y)
@@ -148,7 +152,7 @@ namespace ImageSegmentation
             button.Width = 150;
             button.Height = 10;
             button.Click += new System.Windows.RoutedEventHandler(this.menuButton_Click);
-            kMeanCentroids.Add(new Clustering.Vector(color.B, color.G, color.R, color.A));
+            _kMeanCentroids.Add(new Clustering.Vector(color.B, color.G, color.R, color.A));
             ColorsList.Items.Add(button);
         }
 
@@ -158,21 +162,24 @@ namespace ImageSegmentation
             PointCount.Content = ColorsList.Items.Count;
         }
 
-        private void hiddenSettings()
+        private void HideSettings()
         {
+            SettingsBox.Visibility = Visibility.Hidden;
             foreach (UIElement children in Settings.Children)
             {
-                children.Visibility = Visibility.Hidden;
+                children.Visibility = Visibility.Collapsed;
             }
         }
 
         private void showKMeanSettings()
         {
-            kMeanSettings.Visibility = Visibility.Visible;
+            SettingsBox.Visibility = Visibility.Visible;
+            KMeanSettings.Visibility = Visibility.Visible;
         }
 
         private void showMeanShiftSettings()
         {
+            SettingsBox.Visibility = Visibility.Visible;
             MeanShiftSettings.Visibility = Visibility.Visible;
         }
 
@@ -218,7 +225,7 @@ namespace ImageSegmentation
         /// <returns>The image pixel color at x,y position.</returns>
         public Color PickColor(double x, double y)
         {
-            BitmapSource bitmapSource = imageProperties.Image;
+            BitmapSource bitmapSource = ImageProperties.Image;
             if (bitmapSource != null)
             { // Get color from bitmap pixel.
                 // Convert coopdinates from WPF pixels to Bitmap pixels
@@ -275,7 +282,44 @@ namespace ImageSegmentation
             return new Color();
         }
 
-        private List<Clustering.Vector> kMeanCentroids;
-        private ImageProperties imageProperties;
+        public BitmapSource CurrentImage
+        {
+            get { return (BitmapSource)GetValue(CurrentImageProperty); }
+        }
+
+        private ImageProperties ImageProperties
+        {
+            get { return _imageProperties; }
+            set
+            {
+                _imageProperties = value;
+                SetValue(CurrentImageProperty, _imageProperties.Image);
+                RefreshPanel();
+            }
+        }
+
+        private void RefreshPanel()
+        {
+            if (_imageProperties == null)
+            {
+                foreach (UIElement child in MainPanel.Children)
+                {
+                    child.IsEnabled = false;
+                }
+                OpenImageButton.IsEnabled = true;
+            }
+            else
+            {
+                foreach (UIElement child in MainPanel.Children)
+                {
+                    child.IsEnabled = true;
+                }
+            }
+
+        }
+
+        private List<Clustering.Vector> _kMeanCentroids;
+        private ImageProperties _imageProperties;
+
     }
 }
