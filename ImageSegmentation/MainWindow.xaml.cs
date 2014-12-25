@@ -141,8 +141,7 @@ namespace ImageSegmentation
         {
             ImageProperties = new ImageProperties(new BitmapImage(new Uri(fileName)));
             OriginalImage.Source = CurrentImage;
-            ColorsList.Items.Clear();
-
+            RefreshPanel();
         }
 
         private void createMenuItem(Color color, double x, double y)
@@ -295,6 +294,17 @@ namespace ImageSegmentation
                 _imageProperties = value;
                 SetValue(CurrentImageProperty, _imageProperties.Image);
                 RefreshPanel();
+                Clean();
+            }
+        }
+
+        private void Clean()
+        {
+            ColorsList.Items.Clear();
+            PointCount.Content = "0";
+            if (_kMeanCentroids != null)
+            {
+                _kMeanCentroids.Clear();
             }
         }
 

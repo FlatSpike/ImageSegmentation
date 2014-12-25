@@ -43,7 +43,7 @@
                             <Label Content="Scale:" HorizontalAlignment="Left"/>
                             <DockPanel LastChildFill="true">
                                 <Label Content="{Binding ElementName=ScaleSlider, Path=Value}" MinWidth="30" DockPanel.Dock="Right"/>
-                                <Slider Name="ScaleSlider"  Value="20" IsSnapToTickEnabled="True" Maximum="128" Minimum="1" SmallChange="1"/>
+                                <Slider Name="ScaleSlider"  Value="20" IsSnapToTickEnabled="True" Maximum="1024" Minimum="1" SmallChange="1"/>
                             </DockPanel>
                         </StackPanel>
                     </Grid>
