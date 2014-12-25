@@ -16,6 +16,15 @@ namespace Clustering
             }
         }
 
+        public static void ApplyClusteringColor(List<Cluster> clusters, List<Vector> vectors)
+        {
+            List<Vector> averageVectors = clusters.Select(cluster => cluster.Color).ToList();
+            for (int i = 0; i < vectors.Count; i++)
+            {
+                vectors[i] = averageVectors[clusters.FindIndex(cluster => cluster.Contains(vectors[i]))];
+            }
+        }
+
         public static List<Cluster> MeanShiftClustering(List<Vector> vectors, Func<Vector, Vector, double> criteria, double scale)
         {
             List<Cluster> clusters = new List<Cluster>();
@@ -72,7 +81,10 @@ namespace Clustering
             List<Cluster> clusters = new List<Cluster>();
             foreach (Vector centroid in centroids)
             {
-                clusters.Add(new Cluster(centroid));
+                Cluster cluster = new Cluster(centroid);
+                cluster.Color = centroid;
+                clusters.Add(cluster);
+
             }
 
             bool centroidChanged = true;

@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -20,6 +21,7 @@ namespace ImageSegmentation
         {
             InitializeComponent();
             this.DataContext = this;
+            ComboBox.SelectedIndex = 0;
         }
 
         private void ButtonOpenClick(object sender, RoutedEventArgs e)
@@ -31,45 +33,78 @@ namespace ImageSegmentation
         {
             if (imageProperties.Image != null)
             {
-                testKMeanClustering();
-                //testMeanShiftClustering();
+                switch (ComboBox.SelectedIndex)
+                {
+                    case 0:
+                        meanShiftClustering();
+                        break;
+                    case 1:
+                        if (kMeanCentroidsType.SelectedIndex == 0)
+                        {
+                            kMeanClustering(kMeanCentroids);
+                        }
+                        else
+                        {
+                            // TODO: Add random centroids selection
+                        }
+                        break;
+                }
             }
             else
             {
                 // TODO: Add error handle
             }
+            kMeanCentroids.Clear();
         }
 
         private void Image_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (imageProperties.Image != null)
             {
-                Point position = e.GetPosition(Image);
-                Color color = PickColor(position.X, position.Y);
+                if (ComboBox.SelectedIndex == 1) 
+                {
+                    if (kMeanCentroidsType.SelectedIndex == 0)
+                    {
+                        Point position = e.GetPosition(Image);
+                        Color color = PickColor(position.X, position.Y);
+                        createMenuItem(color, position.X, position.Y);
+                        PointCount.Content = ColorsList.Items.Count;
+                    }
+                }
+            }
+        }
 
+        private void ComboBox_SelectionChanged_1(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            hiddenSettings();
+            switch (ComboBox.SelectedIndex)
+            { 
+                case 0:
+                    showMeanShiftSettings();
+                    break;
+                case 1:
+                    showKMeanSettings();
+                    kMeanCentroids = new List<Clustering.Vector>();
+                    break;
             }
         }
 
         // For testing
         // TODO: Remove
-        private void testKMeanClustering()
+        private void kMeanClustering(List<Clustering.Vector> centroids)
         {
             Image2.Source = imageProperties.Image;
 
-            List<Clustering.Vector> centroids = new List<Clustering.Vector>();
-            centroids.Add(new Clustering.Vector(0, 0, 0, 255));
-            centroids.Add(new Clustering.Vector(255, 255, 255, 255));
-
             List<Clustering.Vector> vectors = new List<Clustering.Vector>(imageProperties.Vector);
             List<Clustering.Cluster> clusters = Clustering.Clustering.kMeansClustering(vectors, Clustering.Criteria.EuclideanDistance, centroids);
-            Clustering.Clustering.ApplyClustering(clusters, vectors);
+            Clustering.Clustering.ApplyClusteringColor(clusters, vectors);
 
             imageProperties = new ImageProperties(
                 ImageBinaryConverter.BytesToImage(imageProperties, Clustering.Vector.GetBytes(vectors.ToArray())));
             SetValue(CurrentImageProperty, imageProperties.Image);
         }
 
-        private void testMeanShiftClustering()
+        private void meanShiftClustering()
         {
             Image2.Source = imageProperties.Image;
 
@@ -97,12 +132,48 @@ namespace ImageSegmentation
             {
                 LoadImage(openFileDialog1.FileName);
                 SetValue(CurrentImageProperty, imageProperties.Image);
+                ColorsList.Items.Clear();
             }
         }
 
         private void LoadImage(string fileName)
         {
             imageProperties = new ImageProperties(new BitmapImage(new Uri(fileName)));
+        }
+
+        private void createMenuItem(Color color, double x, double y)
+        {
+            Button button = new Button();
+            button.Background = new SolidColorBrush(color);
+            button.Width = 150;
+            button.Height = 10;
+            button.Click += new System.Windows.RoutedEventHandler(this.menuButton_Click);
+            kMeanCentroids.Add(new Clustering.Vector(color.B, color.G, color.R, color.A));
+            ColorsList.Items.Add(button);
+        }
+
+        private void menuButton_Click(object sender, EventArgs e)
+        {
+            ColorsList.Items.Remove(sender);
+            PointCount.Content = ColorsList.Items.Count;
+        }
+
+        private void hiddenSettings()
+        {
+            foreach (UIElement children in Settings.Children)
+            {
+                children.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void showKMeanSettings()
+        {
+            kMeanSettings.Visibility = Visibility.Visible;
+        }
+
+        private void showMeanShiftSettings()
+        {
+            MeanShiftSettings.Visibility = Visibility.Visible;
         }
 
         /// http://www.codeproject.com/Tips/255626/A-FileDialog-Filter-generator-for-all-supported-im
@@ -152,17 +223,18 @@ namespace ImageSegmentation
             { // Get color from bitmap pixel.
                 // Convert coopdinates from WPF pixels to Bitmap pixels
                 // and restrict them by the Bitmap bounds.
-                x *= bitmapSource.PixelWidth / ActualWidth;
+
+                x *= bitmapSource.PixelWidth / Image.ActualWidth;
                 if ((int)x > bitmapSource.PixelWidth - 1)
                     x = bitmapSource.PixelWidth - 1;
                 else if (x < 0)
                     x = 0;
-                y *= bitmapSource.PixelHeight / ActualHeight;
+                y *= bitmapSource.PixelHeight / Image.ActualHeight;
                 if ((int)y > bitmapSource.PixelHeight - 1)
                     y = bitmapSource.PixelHeight - 1;
                 else if (y < 0)
                     y = 0;
-
+                
                 // Lee Brimelow approach (http://thewpfblog.com/?p=62).
                 //byte[] pixels = new byte[4];
                 //CroppedBitmap cb = new CroppedBitmap(bitmapSource, 
@@ -203,6 +275,7 @@ namespace ImageSegmentation
             return new Color();
         }
 
+        private List<Clustering.Vector> kMeanCentroids;
         private ImageProperties imageProperties;
     }
 }
