@@ -48,6 +48,7 @@ namespace ImageSegmentation
                         {
                             // TODO: Add random centroids selection
                         }
+                        _kMeanCentroids.Clear();
                         break;
                 }
                 Cursor = Cursors.Arrow;
@@ -55,8 +56,7 @@ namespace ImageSegmentation
             else
             {
                 // TODO: Add error handle
-            }
-            _kMeanCentroids.Clear();
+            }            
         }
 
         private void ButtonClear_OnClick(object sender, RoutedEventArgs e)

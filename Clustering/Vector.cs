@@ -27,7 +27,11 @@ namespace Clustering
 
         public override int GetHashCode()
         {
-            return _components.GetHashCode();
+            string hash = "";
+            foreach (double d in _components) {
+                hash += d.ToString();
+            }
+            return hash.GetHashCode();
         }
 
 

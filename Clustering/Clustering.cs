@@ -27,8 +27,14 @@ namespace Clustering
 
         public static List<Cluster> MeanShiftClustering(List<Vector> vectors, Func<Vector, Vector, double> criteria, double scale)
         {
-            List<Cluster> clusters = new List<Cluster>();
+            HashSet<Vector> vectorSet = new HashSet<Vector>();
             foreach (Vector vector in vectors)
+            {
+                vectorSet.Add(vector);
+            }
+
+            List<Cluster> clusters = new List<Cluster>();
+            foreach (Vector vector in vectorSet)
             {
                 Vector centroid = new Vector(vector);
                 while (true)
@@ -72,6 +78,11 @@ namespace Clustering
 
         public static List<Cluster> kMeansClustering(List<Vector> vectors, Func<Vector, Vector, double> criteria, List<Vector> centroids)
         {
+            HashSet<Vector> vectorSet = new HashSet<Vector>();
+            foreach (Vector vector in vectors) {
+                vectorSet.Add(vector);
+            }
+
             if (centroids == null || centroids.Count < 2)
             {
                 // TODO: Add throw error
@@ -91,7 +102,7 @@ namespace Clustering
 
             while (centroidChanged)
             {
-                foreach (Vector vector in vectors)
+                foreach (Vector vector in vectorSet)
                 {
                     Cluster currentCluster = clusters[0];
                     double currentDistance = criteria(currentCluster.Centroid, vector);
